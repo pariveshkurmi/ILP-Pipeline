@@ -10,6 +10,7 @@ node {
         env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
         echo env.PATH
         echo dockerHome
+        echo mavenHome
     }
 
     stage('Checkout') {
