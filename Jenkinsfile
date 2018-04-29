@@ -40,7 +40,6 @@ node {
     stage('Push to Docker Registry'){
         withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
           sh "docker push pariveshdocker/integratedlearningproject_jenkins:latest"
-          sh 'docker push pariveshdocker/cli:latest'
         }
     }
 
