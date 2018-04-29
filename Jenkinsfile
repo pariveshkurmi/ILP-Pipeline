@@ -38,7 +38,7 @@ node {
 
     stage('Push to Docker Registry'){
         docker.withRegistry('https://registry.hub.docker.com', 'dockerHubAccount') {
-            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
+            pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
         }
     }
 
@@ -58,7 +58,7 @@ def imageBuild(containerName, tag){
     echo "Image build complete"
 }
 
-def pushToImage(containerName, tag, dockerUser, dockerPassword){
+def pushToImage(containerName, tag, dockerUser){
     sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
     sh "docker push $dockerUser/$containerName:$tag"
     echo "Image push complete"
