@@ -2,7 +2,7 @@ def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
 node {
-    def app
+    
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
@@ -38,8 +38,7 @@ node {
 
     stage('Push to Docker Registry'){
         docker.withRegistry('https://registry.hub.docker.com', 'dockerHubAccount') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
         }
     }
 
@@ -60,7 +59,6 @@ def imageBuild(containerName, tag){
 }
 
 def pushToImage(containerName, tag, dockerUser, dockerPassword){
-    sh "docker login -u $dockerUser -p $dockerPassword"
     sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
     sh "docker push $dockerUser/$containerName:$tag"
     echo "Image push complete"
