@@ -1,9 +1,8 @@
 def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
-
 node {
-
+    def app
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
