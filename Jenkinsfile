@@ -1,6 +1,7 @@
 def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
+def DOCKER_HUB_PASSWORD="docker@123"
 node {
     
     stage('Initialize'){
@@ -38,7 +39,7 @@ node {
 
     stage('Push to Docker Registry'){
         docker.withRegistry('https://registry.hub.docker.com', 'dockerHubAccount') {
-            pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
+            pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, DOCKER_HUB_PASSWORD)
         }
     }
 
@@ -58,8 +59,9 @@ def imageBuild(containerName, tag){
     echo "Image build complete"
 }
 
-def pushToImage(containerName, tag, dockerUser){
-    sh "docker tag demo_registry:$tag $dockerUser/demo_registry:$tag"
-    sh "docker push $dockerUser/demo_registry:$tag"
+def pushToImage(containerName, tag, dockerUser, dockerPassword){
+    sh "docker login -u $dockerUser -p $dockerPassword"
+    sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
+    sh "docker push $dockerUser/$containerName:$tag"
     echo "Image push complete"
 }
