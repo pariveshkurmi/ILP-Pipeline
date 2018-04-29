@@ -59,7 +59,7 @@ def imageBuild(containerName, tag){
 }
 
 def pushToImage(containerName, tag, dockerUser){
-    sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
-    sh "docker push $dockerUser/$containerName:$tag"
+    sh "docker tag demo_registry:$tag $dockerUser/demo_registry:$tag"
+    sh "docker push $dockerUser/demo_registry:$tag"
     echo "Image push complete"
 }
