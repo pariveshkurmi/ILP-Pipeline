@@ -47,6 +47,8 @@ node {
 
 def imagePrune(containerName){
     try {
+        sh "docker --version"
+        sh "docker ps"
         sh "docker image prune -f"
         sh "docker stop $containerName"
     } catch(error){}
