@@ -38,8 +38,9 @@ node {
     }
 
     stage('Push to Docker Registry'){
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerHubAccount') {
-            pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, DOCKER_HUB_PASSWORD)
+        withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
+          sh "docker push pariveshdocker/integratedlearningproject_jenkins:latest"
+          sh 'docker push pariveshdocker/cli:latest'
         }
     }
 
