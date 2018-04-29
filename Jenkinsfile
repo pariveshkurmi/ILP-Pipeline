@@ -9,7 +9,7 @@ node {
         def mavenHome  = tool 'myMaven'
         env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
         echo env.PATH
-        echo "docker --version"
+        echo docker -version
     }
 
     stage('Checkout') {
