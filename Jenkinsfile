@@ -42,7 +42,9 @@ node {
           sh "docker push pariveshdocker/integratedlearningproject_jenkins:latest"
         }
     }
-
+    stage('Email sent'){
+        mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'Test', to: 'pariveshkurmi.mit@gmail.com'
+    }
 }
 
 def imagePrune(containerName){
