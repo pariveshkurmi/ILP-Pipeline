@@ -21,15 +21,6 @@ node {
         sh "mvn clean compile"
     }
 
-    stage('Sonar'){
-        try {
-            sh "mvn sonar:sonar -Dsonar.host.url=http://192.168.99.100:9000 -Dsonar.login=645cf4ae04ad68febfb56699eb27d46c901428b5"
-            
-        } catch(error){
-            echo "The sonar server could not be reached ${error}"
-        }
-     }
-
     stage("Image Prune"){
         imagePrune(CONTAINER_NAME)
     }
