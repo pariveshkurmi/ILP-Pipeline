@@ -8,4 +8,4 @@ WORKDIR ilp/
 
 RUN mvn clean install
 
-COPY /ilp/target/integrated-learning-project.war /usr/local/tomcat/webapps
+ADD integrated-learning-project.war /usr/local/tomcat/webapps
