@@ -1,11 +1,2 @@
-FROM maven:3-alpine
-
-COPY pom.xml ilp/
-
-COPY src/ ilp/src/
-
-WORKDIR ilp/
-
-RUN mvn clean install
-
-ADD integratedlearningproject.war /usr/local/tomcat/webapps
+FROM tomcat:8.0.43-jre8
+ADD integratedlearningproject.war /usr/local/tomcat/webapps/
