@@ -1,16 +1,14 @@
 def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
-def DOCKER_HUB_PASSWORD="docker@123"
+def HTTP_PORT="8090"
+
 node {
     
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
         env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
-        echo env.PATH
-        echo dockerHome
-        echo mavenHome
     }
 
     stage('Checkout') {
@@ -34,14 +32,19 @@ node {
     }
 
     stage('Image Build'){
-        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
+        imageBuild(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
     }
 
     stage('Push to Docker Registry'){
         withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
-          sh "docker push pariveshdocker/integratedlearningproject_jenkins:latest"
+		  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
         }
     }
+	
+	stage('Run App'){
+        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
+    }
+
     stage('Email sent'){
         mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'Test', to: 'pariveshkurmi.mit@gmail.com'
     }
@@ -61,9 +64,13 @@ def imageBuild(containerName, tag){
     echo "Image build complete"
 }
 
-def pushToImage(containerName, tag, dockerUser, dockerPassword){
-    sh "docker login -u $dockerUser -p $dockerPassword"
-    sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
-    sh "docker push $dockerUser/$containerName:$tag"
+def pushToImage(containerName, tag, dockerHubUser){
+    sh "docker push $dockerHubUser/$containerName:$tag"
     echo "Image push complete"
+}
+
+def runApp(containerName, tag, dockerHubUser, httpPort){
+    sh "docker pull $dockerHubUser/$containerName"
+    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag"
+    echo "Application started on port: ${httpPort} (http)"
 }
