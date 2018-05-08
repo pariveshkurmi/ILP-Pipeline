@@ -1,2 +1,2 @@
-FROM tomcat:8.0.43-jre8
+FROM tomcat:latest
 ADD integratedlearningproject.war /usr/local/tomcat/webapps/
