@@ -66,8 +66,10 @@ def imagePrune(containerName){
 }
 
 def removeExistingContaier(containerName){
-    sh "docker rm -f $containerName"
-    echo "Remove Container complete"
+	try {
+    	sh "docker rm -f $containerName"
+    	echo "Remove Container complete"
+   } catch(error){}
 }
 
 def imageBuild(containerName, tag){
