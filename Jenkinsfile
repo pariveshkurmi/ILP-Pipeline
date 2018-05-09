@@ -42,7 +42,7 @@ node {
     }
 	
 	stage('Run App'){
-		docker rm -f integratedlearningproject_jenkins
+		removeExistingContaier(CONTAINER_NAME)
         runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
     
@@ -60,11 +60,14 @@ node {
 
 def imagePrune(containerName){
     try {
-        sh "docker --version"
-        sh "docker ps"
         sh "docker image prune -f"
         sh "docker stop $containerName"
     } catch(error){}
+}
+
+def removeExistingContaier(containerName){
+    sh "docker rm -f $containerName"
+    echo "Remove Container complete"
 }
 
 def imageBuild(containerName, tag){
