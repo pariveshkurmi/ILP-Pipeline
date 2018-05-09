@@ -44,10 +44,17 @@ node {
 	stage('Run App'){
         runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
-
-    stage('Email sent'){
-        mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'Test', to: 'pariveshkurmi.mit@gmail.com'
+    
+    post {
+        success {
+            mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
+        }
+        failure {
+        	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline failed :(', to: 'pariveshkurmi.mit@gmail.com'
+            
+        }
     }
+    
 }
 
 def imagePrune(containerName){
