@@ -4,8 +4,10 @@ def DOCKER_HUB_USER="pariveshdocker"
 def HTTP_PORT="8080"
 
 node {
-    
+    currentBuild.result = "SUCCESS"
+    try{
     stage('Initialize'){
+    	sh "mvn clean nstall"
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
         env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
@@ -45,15 +47,16 @@ node {
 		removeExistingContaier(CONTAINER_NAME)
         runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
+    stage('Build Result'){
+    mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
+    }
     
-    post {
-        success {
-            mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
-        }
-        failure {
-        	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline failed :(', to: 'pariveshkurmi.mit@gmail.com'
-            
-        }
+    }
+    catch(caughtError){
+    println "caught error :" + caughtError
+      err = caughtError
+      currentBuild.result = "FAILURE"
+      mail bcc: '', body: 'Pipeline error: ${err}\nFix me.', cc: '', from: '', replyTo: '', subject: 'Pipeline build failed', to: 'pariveshkurmi.mit@gmail.com'
     }
     
 }
