@@ -6,54 +6,55 @@ def HTTP_PORT="8080"
 node {
     currentBuild.result = "SUCCESS"
     try{
-    stage('Initialize'){
-    
-        def dockerHome = tool 'myDocker'
-        def mavenHome  = tool 'myMaven'
-        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
-    }
-
-    stage('Checkout') {
-        checkout scm
-    }
-
-    stage('Build'){
-        sh "mvn clean install"
-    }
-    
-	stage('Sonar'){
-        try {
-            sh "mvn sonar:sonar"
-        } catch(error){
-            echo "The sonar server could not be reached ${error}"
-        }
-     }
-     
-     stage("Image Prune"){
-        imagePrune(CONTAINER_NAME)
-    }
-
-    stage('Image Build'){
-        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
-    }
-
-    stage('Push to Docker Registry'){
-        withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
-		  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
-        }
-    }
+	    stage('Initialize'){
+	    
+	        def dockerHome = tool 'myDocker'
+	        def mavenHome  = tool 'myMaven'
+	        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
+	    }
 	
-	stage('Run App'){
-		removeExistingContaier(CONTAINER_NAME)
-        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
-    }
-    stage('Build Result'){
-    mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
-    }
+	    stage('Checkout') {
+	        checkout scm
+	    }
+	
+	    stage('Build'){
+	        sh "mvn clean install"
+	    }
+	    
+		stage('Sonar'){
+	        try {
+	            sh "mvn sonar:sonar"
+	        } catch(error){
+	            echo "The sonar server could not be reached ${error}"
+	        }
+	     }
+	     
+	     stage("Image Prune"){
+	        imagePrune(CONTAINER_NAME)
+	    }
+	
+	    stage('Image Build'){
+	        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
+	    }
+	
+	    stage('Push to Docker Registry'){
+	        withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
+			  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
+	        }
+	    }
+		
+		stage('Run App'){
+			removeExistingContaier(CONTAINER_NAME)
+	        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
+	    }
+	    
+	    stage('Build Result'){
+	    	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
+	    }
     
     }
     catch(caughtError){
-    println "caught error :" + caughtError
+      println "caught error :" + caughtError
       err = caughtError
       currentBuild.result = "FAILURE"
       mail bcc: '', body: 'Pipeline error: ${err}\nFix me.', cc: '', from: '', replyTo: '', subject: 'Pipeline build failed', to: 'pariveshkurmi.mit@gmail.com'
