@@ -17,8 +17,8 @@ node {
 	        checkout scm
 	    }
 	
-	    stage('Build'){
-	        sh "mvn clean install"
+	    stage('Build and deploy to Repository'){
+	        sh "mvn clean deploy"
 	    }
 	    
 		stage('Sonar'){

@@ -1,4 +1,4 @@
-package com.wipro.test;
+package com.wipro.controller;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
