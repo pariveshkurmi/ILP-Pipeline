@@ -2,6 +2,7 @@ def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
 def HTTP_PORT="8080"
+def app
 
 node {
     
@@ -37,7 +38,7 @@ node {
 	    }
 	
 	    stage('Push to Docker Registry'){
-	    withDockerRegistry(registry:[credentialsId: "dockerHubAccount", url: ""]) {
+	    withDockerRegistry([credentialsId: 'dockerHubAccount', url: '']) {
 			  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
 	        } 
 	   }
