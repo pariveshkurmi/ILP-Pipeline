@@ -38,7 +38,7 @@ node {
 	
 	    stage('Push to Docker Registry'){
 	    
-	    withDockerRegistry(registry: [credentialsId: 'dockerHubAccount', url: 'https://hub.docker.com/r/pariveshdocker/integratedlearningproject_jenkins/'], toolName: 'myDocker') {
+	    withDockerRegistry(registry: [credentialsId: 'dockerHubAccount', url: ''], toolName: 'myDocker') {
    			pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
 		}
 	    
