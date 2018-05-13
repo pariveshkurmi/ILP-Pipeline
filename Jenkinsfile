@@ -6,7 +6,7 @@ def app
 
 node {
     currentBuild.result = "SUCCESS"
-    try{
+    
 	    stage('Initialize'){
 	    
 	        def dockerHome = tool 'myDocker'
@@ -50,14 +50,7 @@ node {
 	    stage('Build Result'){
 	    	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
 	    }
-    
-    }
-    catch(caughtError){
-      println "caught error :" + caughtError
-      err = caughtError
-      currentBuild.result = "FAILURE"
-      mail bcc: '', body: 'Pipeline error: ${err}\nFix me.', cc: '', from: '', replyTo: '', subject: 'Pipeline build failed', to: 'pariveshkurmi.mit@gmail.com'
-    }
+   
     
 }
 
