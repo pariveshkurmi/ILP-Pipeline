@@ -2,10 +2,10 @@ def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
 def HTTP_PORT="8080"
-def app
 
 node {
-    
+    currentBuild.result = "SUCCESS"
+    try{
 	    stage('Initialize'){
 	    
 	        def dockerHome = tool 'myDocker'
@@ -18,7 +18,7 @@ node {
 	    }
 	
 	    stage('Build and deploy to Repository'){
-	        sh "mvn clean deploy"
+	        sh "mvn clean compile"
 	    }
 	    
 		stage('Sonar'){
@@ -38,10 +38,10 @@ node {
 	    }
 	
 	    stage('Push to Docker Registry'){
-	    withDockerRegistry([credentialsId: 'dockerHubAccount', url: '']) {
+	        withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
 			  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
-	        } 
-	   }
+	        }
+	    }
 		
 		stage('Run App'){
 			removeExistingContaier(CONTAINER_NAME)
@@ -51,6 +51,15 @@ node {
 	    stage('Build Result'){
 	    	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
 	    }
+    
+    }
+    catch(caughtError){
+      println "caught error :" + caughtError
+      err = caughtError
+      currentBuild.result = "FAILURE"
+      mail bcc: '', body: 'Pipeline error: ${err}\nFix me.', cc: '', from: '', replyTo: '', subject: 'Pipeline build failed', to: 'pariveshkurmi.mit@gmail.com'
+    }
+    
 }
 
 def imagePrune(containerName){
