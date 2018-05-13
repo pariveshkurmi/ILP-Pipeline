@@ -2,6 +2,7 @@ def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
 def HTTP_PORT="8080"
+def app
 
 node {
     currentBuild.result = "SUCCESS"
@@ -34,19 +35,17 @@ node {
 	    }
 	
 	    stage('Image Build'){
-	        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
+	       app = docker.build("pariveshkurmi/ILP-Pipeline")
 	    }
 	
 	    stage('Push to Docker Registry'){
-	        withDockerRegistry([ credentialsId: "dockerHubAccount", url: "https://registry.hub.docker.com" ]) {
-			  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
-	        }
+		    docker.withRegistry('https://registry.hub.docker.com', 'dockerHubAccount') {
+	            app.push("${env.BUILD_NUMBER}")
+	            app.push("latest")
+	        }   
 	    }
 		
-		stage('Run App'){
-			removeExistingContaier(CONTAINER_NAME)
-	        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
-	    }
+		
 	    
 	    stage('Build Result'){
 	    	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
