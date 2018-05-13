@@ -2,11 +2,10 @@ def CONTAINER_NAME="integratedlearningproject_jenkins"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="pariveshdocker"
 def HTTP_PORT="8080"
-def app
 
 node {
     currentBuild.result = "SUCCESS"
-    
+    try{
 	    stage('Initialize'){
 	    
 	        def dockerHome = tool 'myDocker'
@@ -35,22 +34,26 @@ node {
 	    }
 	
 	    stage('Image Build'){
-	       app = docker.build("pariveshkurmi/ILP-Pipeline")
+	        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
 	    }
 	
-	    stage('Push to Docker Registry'){
-		    docker.withRegistry('https://registry.hub.docker.com', 'dockerHubAccount') {
-	            app.push("${env.BUILD_NUMBER}")
-	            app.push("latest")
-	        }   
+		
+		stage('Run App'){
+			removeExistingContaier(CONTAINER_NAME)
+	        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
 	    }
-		
-		
 	    
 	    stage('Build Result'){
 	    	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
 	    }
-   
+    
+    }
+    catch(caughtError){
+      println "caught error :" + caughtError
+      err = caughtError
+      currentBuild.result = "FAILURE"
+      mail bcc: '', body: 'Pipeline error: ${err}\nFix me.', cc: '', from: '', replyTo: '', subject: 'Pipeline build failed', to: 'pariveshkurmi.mit@gmail.com'
+    }
     
 }
 
@@ -79,7 +82,7 @@ def pushToImage(containerName, tag, dockerHubUser){
 }
 
 def runApp(containerName, tag, dockerHubUser, httpPort){
-    sh "docker pull $dockerHubUser/$containerName"
+    
     sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $containerName:$tag"
     echo "Application started on port: ${httpPort} (http)"
 }
