@@ -37,7 +37,7 @@ node {
 	    }
 	
 	    stage('Push to Docker Registry'){
-	    withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
+	    withDockerRegistry(registry:[credentialsId: "dockerHubAccount", url: ""]) {
 			  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
 	        } 
 	   }
