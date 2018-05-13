@@ -37,10 +37,12 @@ node {
 	    }
 	
 	    stage('Push to Docker Registry'){
-	        withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
-			  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
-	        }
-	    }
+	    
+	    withDockerRegistry(registry: [credentialsId: 'dockerHubAccount', url: 'https://hub.docker.com/r/pariveshdocker/integratedlearningproject_jenkins/'], toolName: 'myDocker') {
+   			pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
+		}
+	    
+	   }
 		
 		stage('Run App'){
 			removeExistingContaier(CONTAINER_NAME)
