@@ -4,7 +4,8 @@ def DOCKER_HUB_USER="pariveshdocker"
 def HTTP_PORT="8080"
 
 node {
-    
+    currentBuild.result = "SUCCESS"
+    try{
 	    stage('Initialize'){
 	    
 	        def dockerHome = tool 'myDocker'
@@ -16,8 +17,8 @@ node {
 	        checkout scm
 	    }
 	
-	    stage('Build and deploy to Repository'){
-	        sh "mvn clean deploy"
+	    stage('Build and Test'){
+	        sh "mvn clean install"
 	    }
 	    
 		stage('Sonar'){
@@ -28,6 +29,10 @@ node {
 	        }
 	     }
 	     
+	     stage('Publish to JFrog Artifactory'){
+	        sh "mvn clean deploy"
+	    }
+	     
 	     stage("Image Prune"){
 	        imagePrune(CONTAINER_NAME)
 	    }
@@ -35,13 +40,14 @@ node {
 	    stage('Image Build'){
 	        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
 	    }
-	stage('Push to Docker Registry'){
-        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
+	    
+	    stage('Push to Docker Registry'){
+            withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
+            }
         }
-    }
 		
-		stage('Run App'){
+		stage('Run App on container'){
 			removeExistingContaier(CONTAINER_NAME)
 	        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
 	    }
@@ -50,7 +56,13 @@ node {
 	    	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
 	    }
     
-    
+    }
+    catch(caughtError){
+      println "caught error :" + caughtError
+      err = caughtError
+      currentBuild.result = "FAILURE"
+      mail bcc: '', body: 'Pipeline error: ${err}\nFix me.', cc: '', from: '', replyTo: '', subject: 'Pipeline build failed', to: 'pariveshkurmi.mit@gmail.com'
+    }
     
 }
 
