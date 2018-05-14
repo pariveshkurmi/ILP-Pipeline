@@ -36,10 +36,10 @@ node {
 	        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
 	    }
 	stage('Push to Docker Registry'){
-        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
-        }
-    }
+	        withDockerRegistry([ credentialsId: "dockerHubAccount", url: "" ]) {
+			  pushToImage(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
+	        }
+	    }
 		
 		stage('Run App'){
 			removeExistingContaier(CONTAINER_NAME)
@@ -73,9 +73,8 @@ def imageBuild(containerName, tag){
     echo "Image build complete"
 }
 
-def pushToImage(containerName, tag, dockerUser, dockerPassword){
-    sh "docker login -u $dockerUser -p $dockerPassword"
-    sh "docker push $dockerUser/$containerName:$tag"
+def pushToImage(containerName, tag, dockerHubUser){
+    sh "docker push $dockerHubUser/$containerName:$tag"
     echo "Image push complete"
 }
 
