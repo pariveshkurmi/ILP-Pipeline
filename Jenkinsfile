@@ -4,8 +4,7 @@ def DOCKER_HUB_USER="pariveshdocker"
 def HTTP_PORT="8080"
 
 node {
-    currentBuild.result = "SUCCESS"
-    try{
+    
 	    stage('Initialize'){
 	    
 	        def dockerHome = tool 'myDocker'
@@ -36,7 +35,11 @@ node {
 	    stage('Image Build'){
 	        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
 	    }
-	
+	stage('Push to Docker Registry'){
+        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
+        }
+    }
 		
 		stage('Run App'){
 			removeExistingContaier(CONTAINER_NAME)
@@ -47,13 +50,7 @@ node {
 	    	mail bcc: '', body: 'Test Success', cc: '', from: '', replyTo: '', subject: 'The Pipeline Success :-)', to: 'pariveshkurmi.mit@gmail.com'
 	    }
     
-    }
-    catch(caughtError){
-      println "caught error :" + caughtError
-      err = caughtError
-      currentBuild.result = "FAILURE"
-      mail bcc: '', body: 'Pipeline error: ${err}\nFix me.', cc: '', from: '', replyTo: '', subject: 'Pipeline build failed', to: 'pariveshkurmi.mit@gmail.com'
-    }
+    
     
 }
 
@@ -76,8 +73,9 @@ def imageBuild(containerName, tag){
     echo "Image build complete"
 }
 
-def pushToImage(containerName, tag, dockerHubUser){
-    sh "docker push $dockerHubUser/$containerName:$tag"
+def pushToImage(containerName, tag, dockerUser, dockerPassword){
+    sh "docker login -u $dockerUser -p $dockerPassword"
+    sh "docker push $dockerUser/$containerName:$tag"
     echo "Image push complete"
 }
 
